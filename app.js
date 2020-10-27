@@ -4,7 +4,27 @@
   angular.module('NarrowItDownApp', [])
   .controller('NarrowItDownController', NarrowItDownController)
   .service('MenuSearchService' , MenuSearchService)
-  .constant('ApiBasePath', "https://davids-restaurant.herokuapp.com");
+  .constant('ApiBasePath', "https://davids-restaurant.herokuapp.com/")
+  .directive("foundItems", function() {
+    var ddo = {
+      restrict:'E',
+      templateUrl: 'fooditems.html',
+      scope: {
+        foundItems: '<',
+        myTitle: '@title',
+        onRemove: '='
+      },
+      // controller: 'ShoppingListDirectiveController as list',
+      controller: FoundItemsController,
+      controllerAs: 'fic',
+      bindToController: true
+    };
+
+    return ddo;
+  });
+  function FoundItemsController(){
+    var list = this;
+  }
   NarrowItDownController.$inject = ['MenuSearchService'];
   function NarrowItDownController(MenuSearchService){
     var cntrl = this;
@@ -13,28 +33,34 @@
     cntrl.finder = function(){
       var finder = MenuSearchService.getMatchedMenuItems(cntrl.searchTerm);
                                       finder.then(function (response) {
-                                        cntrl.found = response.data;
+                                        cntrl.found = response;
+                                        console.log(cntrl.found);
                                       })
                                       .catch(function (error) {
-                                        console.log("Something went terribly wrong.");
+                                        console.log(error);
                                       });
+    }
+    cntrl.remover = function(key){
+      cntrl.found.splice(key, 1);
     }
   }
   MenuSearchService.$inject = ['$http', 'ApiBasePath'];
   function MenuSearchService ($http , ApiBasePath){
     var service = this;
-    service.getMatchedMenuItems = function(searchTerm = "l"){
-      return $http(
-        method: "POST",
-        url: (ApiBasePath + "/menu_items.json")
+    service.getMatchedMenuItems = function(searchTerm){
+      return $http({
+        method: "GET",
+        url: (ApiBasePath + "menu_items.json")}
       ).then(function (result) {
           // process result and only keep items that match
-          var foundItems;
-          angular.forEach(result, function(result) {
-            if(description.find(searchTerm) !== -1){
-              this.push(result.name + ': ' + result.description);
+          var fitems = result.data.menu_items;
+          var foundItems = [];
+          angular.forEach(fitems , function(value, key) {
+            //console.log(value);
+            if(value.description.search(searchTerm) !== -1){
+              foundItems.push(value.name);
             }
-          }, foundItems);
+          });
           // return processed items
           return foundItems;
       });
