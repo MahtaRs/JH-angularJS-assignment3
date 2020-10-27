@@ -12,14 +12,13 @@
       scope: {
         foundItems: '<',
         myTitle: '@title',
-        onRemove: '='
+        onRemove: '&'
       },
       // controller: 'ShoppingListDirectiveController as list',
       controller: FoundItemsController,
       controllerAs: 'fic',
       bindToController: true
     };
-
     return ddo;
   });
   function FoundItemsController(){
@@ -30,14 +29,14 @@
     var cntrl = this;
     cntrl.searchTerm;
     cntrl.found;
+    cntrl.error;
     cntrl.finder = function(){
       var finder = MenuSearchService.getMatchedMenuItems(cntrl.searchTerm);
                                       finder.then(function (response) {
                                         cntrl.found = response;
-                                        console.log(cntrl.found);
                                       })
                                       .catch(function (error) {
-                                        console.log(error);
+                                        console.log("An Error Occured !");
                                       });
     }
     cntrl.remover = function(key){
@@ -57,8 +56,8 @@
           var foundItems = [];
           angular.forEach(fitems , function(value, key) {
             //console.log(value);
-            if(value.description.search(searchTerm) !== -1){
-              foundItems.push(value.name);
+            if(value.description.indexOf(searchTerm) !== -1){
+              foundItems.push({'name': value.name , 'description':value.description});
             }
           });
           // return processed items
