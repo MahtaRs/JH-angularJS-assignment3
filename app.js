@@ -57,7 +57,7 @@
           angular.forEach(fitems , function(value, key) {
             //console.log(value);
             if(value.description.indexOf(searchTerm) !== -1){
-              foundItems.push({'name': value.name , 'description':value.description});
+              foundItems.push({'short_name':value.short_name , 'name': value.name , 'description':value.description});
             }
           });
           // return processed items
